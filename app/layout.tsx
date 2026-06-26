@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: { default: 'Estoque Fácil', template: '%s | Estoque Fácil' },
-  description: 'Controle seu estoque sem planilha complicada. Saiba o que está acabando, o que está parado e onde você está perdendo produto.',
-  keywords: ['estoque', 'controle de estoque', 'gestão de estoque', 'pequenos negócios', 'inventário'],
+  title: { default: 'StockHome', template: '%s | StockHome' },
+  description: 'Controle de estoque simples e inteligente para pequenos negócios. Cadastre produtos, registre movimentações e receba alertas automáticos.',
+  keywords: ['estoque', 'controle de estoque', 'stockhome', 'gestão de estoque', 'pequenos negócios', 'inventário'],
   robots: 'index, follow',
 }
 

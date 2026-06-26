@@ -1,5 +1,5 @@
 {
-  "name": "estoque-facil",
+  "name": "stockhome",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,7 +17,8 @@
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "recharts": "^3.9.0"
+    "recharts": "^3.9.0",
+    "stripe": "^22.3.0"
   },
   "devDependencies": {
     "@types/node": "^20",

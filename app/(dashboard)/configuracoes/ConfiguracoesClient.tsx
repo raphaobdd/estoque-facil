@@ -2,15 +2,19 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Settings, Building2, User, Bell, Save, Check, Lock } from 'lucide-react'
+import { Settings, Building2, User, Bell, Save, Check, Lock, Zap, Crown, Rocket, ExternalLink } from 'lucide-react'
+import type { PlanoStatus } from '@/types'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   perfil: any
   userId: string
+  planoStatus?: PlanoStatus
+  plano?: string
+  trialExpiraEm?: string | null
 }
 
-export default function ConfiguracoesClient({ perfil, userId }: Props) {
+export default function ConfiguracoesClient({ perfil, userId, planoStatus, plano, trialExpiraEm }: Props) {
   const supabase = createClient()
 
   const empresa = Array.isArray(perfil.empresa) ? perfil.empresa[0] : perfil.empresa
@@ -20,6 +24,37 @@ export default function ConfiguracoesClient({ perfil, userId }: Props) {
   const [nomeUsuario, setNomeUsuario] = useState(perfil.nome ?? '')
   const [loading, setLoading] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState<string | null>(null)
+
+  // Calcula dias restantes do trial
+  const diasTrial = trialExpiraEm
+    ? Math.max(0, Math.ceil((new Date(trialExpiraEm).getTime() - Date.now()) / 86400000))
+    : 0
+
+  async function handleCheckout(planoKey: 'basic' | 'starter' | 'pro') {
+    setLoading('checkout_' + planoKey)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plano: planoKey }),
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  async function handlePortal() {
+    setLoading('portal')
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } finally {
+      setLoading(null)
+    }
+  }
 
   async function salvarEmpresa() {
     setLoading('empresa')
@@ -136,7 +171,7 @@ export default function ConfiguracoesClient({ perfil, userId }: Props) {
           </div>
         </div>
 
-        {/* Info do plano */}
+        {/* Plano & Assinatura */}
         <div className="card">
           <div className="card-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
@@ -144,25 +179,94 @@ export default function ConfiguracoesClient({ perfil, userId }: Props) {
                 <Bell size={18} />
               </div>
               <div>
-                <div style={{ fontWeight: 700 }}>Plano atual</div>
-                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Informações sobre sua assinatura</div>
+                <div style={{ fontWeight: 700 }}>Plano & Assinatura</div>
+                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Gerencie seu plano StockHome</div>
               </div>
             </div>
           </div>
-          <div className="card-body" style={{ padding: 'var(--space-4) var(--space-5)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="card-body" style={{ padding: 'var(--space-4) var(--space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+
+            {/* Status atual */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-3) var(--space-4)', background: 'var(--color-surface-2)', borderRadius: 'var(--radius-lg)' }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 'var(--font-size-lg)', textTransform: 'capitalize' }}>
-                  {empresa?.plano ?? 'gratuito'}
+                  {plano === 'trial' || !plano ? 'Trial' : plano === 'basic' ? 'Basic' : plano === 'starter' ? 'Starter' : 'Pro'}
                 </div>
                 <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-soft)' }}>
-                  {empresa?.plano === 'gratuito' ? 'Até 50 produtos · 1 usuário' : 'Produtos ilimitados · Múltiplos usuários'}
+                  {planoStatus === 'trial'
+                    ? diasTrial > 0 ? `${diasTrial} dias restantes de trial` : 'Trial expirado'
+                    : planoStatus === 'ativo' ? 'Assinatura ativa'
+                    : planoStatus === 'cancelado' ? 'Assinatura cancelada'
+                    : 'Assinatura expirada'}
                 </div>
               </div>
-              {empresa?.plano === 'gratuito' && (
-                <span className="badge badge-primary" style={{ padding: '4px 12px', fontWeight: 700 }}>Em breve: Pro</span>
-              )}
+              <span className={`badge ${planoStatus === 'ativo' ? 'badge-success' : planoStatus === 'trial' && diasTrial > 0 ? 'badge-primary' : 'badge-danger'}`}
+                style={{ padding: '4px 12px', fontWeight: 700 }}>
+                {planoStatus === 'ativo' ? 'Ativo' : planoStatus === 'trial' ? 'Trial' : 'Inativo'}
+              </span>
             </div>
+
+            {/* Cards dos planos */}
+            {(planoStatus !== 'ativo' || plano === 'basic') && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--space-3)' }}>
+                {/* Basic */}
+                {(planoStatus !== 'ativo' || plano !== 'basic') && (
+                  <div style={{ border: '2px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <Zap size={16} color="var(--color-primary)" />
+                      <span style={{ fontWeight: 700 }}>Basic</span>
+                    </div>
+                    <div style={{ fontSize: 'var(--font-size-xl)', fontWeight: 800 }}>R$ 29<span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 400 }}>,90/mês</span></div>
+                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-soft)' }}>Até 10 produtos</div>
+                    <button id="btn-assinar-basic" className="btn btn-secondary" style={{ marginTop: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}
+                      disabled={loading === 'checkout_basic'} onClick={() => handleCheckout('basic')}>
+                      {loading === 'checkout_basic' ? <span className="spinner" /> : 'Assinar'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Starter */}
+                {(planoStatus !== 'ativo' || !['starter', 'pro'].includes(plano ?? '')) && (
+                  <div style={{ border: '2px solid var(--color-primary)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: 8, right: 8, background: 'var(--color-primary)', color: 'white', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--radius-full)' }}>POPULAR</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <Crown size={16} color="var(--color-primary)" />
+                      <span style={{ fontWeight: 700 }}>Starter</span>
+                    </div>
+                    <div style={{ fontSize: 'var(--font-size-xl)', fontWeight: 800 }}>R$ 59<span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 400 }}>,90/mês</span></div>
+                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-soft)' }}>Até 50 produtos</div>
+                    <button id="btn-assinar-starter" className="btn btn-primary" style={{ marginTop: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}
+                      disabled={loading === 'checkout_starter'} onClick={() => handleCheckout('starter')}>
+                      {loading === 'checkout_starter' ? <span className="spinner" /> : 'Assinar'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Pro */}
+                {plano !== 'pro' && (
+                  <div style={{ border: '2px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <Rocket size={16} color="var(--color-warning)" />
+                      <span style={{ fontWeight: 700 }}>Pro</span>
+                    </div>
+                    <div style={{ fontSize: 'var(--font-size-xl)', fontWeight: 800 }}>R$ 99<span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 400 }}>,90/mês</span></div>
+                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-soft)' }}>Produtos ilimitados</div>
+                    <button id="btn-assinar-pro" className="btn btn-secondary" style={{ marginTop: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}
+                      disabled={loading === 'checkout_pro'} onClick={() => handleCheckout('pro')}>
+                      {loading === 'checkout_pro' ? <span className="spinner" /> : 'Assinar'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Gerenciar assinatura (só para assinantes) */}
+            {planoStatus === 'ativo' && (
+              <button id="btn-gerenciar-assinatura" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}
+                disabled={loading === 'portal'} onClick={handlePortal}>
+                {loading === 'portal' ? <span className="spinner" /> : <><ExternalLink size={16} /> Gerenciar assinatura</>}
+              </button>
+            )}
           </div>
         </div>
 
@@ -184,7 +288,7 @@ export default function ConfiguracoesClient({ perfil, userId }: Props) {
               Para excluir sua conta ou empresa, entre em contato com o suporte.
             </p>
             <a href="mailto:suporte@estoquefacil.app" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-primary)', fontWeight: 500 }}>
-              suporte@estoquefacil.app
+              suporte@stockhome.app
             </a>
           </div>
         </div>

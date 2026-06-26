@@ -18,11 +18,21 @@ export default async function ConfiguracoesPage() {
 
   if (!perfil?.empresa_id) redirect('/onboarding')
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const empresa = Array.isArray((perfil as any).empresa)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ? (perfil as any).empresa[0]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    : (perfil as any).empresa
+
   return (
     <ConfiguracoesClient
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       perfil={perfil as any}
       userId={user.id}
+      planoStatus={empresa?.plano_status ?? 'trial'}
+      plano={empresa?.plano ?? 'trial'}
+      trialExpiraEm={empresa?.trial_expira_em ?? null}
     />
   )
 }

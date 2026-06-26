@@ -109,7 +109,7 @@ export default function OnboardingPage() {
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', background: 'var(--color-primary-light)', padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius-full)', marginBottom: 'var(--space-4)' }}>
             <Package size={16} color="var(--color-primary)" />
-            <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-primary)' }}>Estoque Fácil</span>
+            <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-primary)' }}>StockHome</span>
           </div>
           <div className="step-indicator" style={{ justifyContent: 'center' }}>
             {[1, 2, 3].map(s => (
@@ -124,7 +124,7 @@ export default function OnboardingPage() {
             <div className="card-body" style={{ textAlign: 'center', gap: 'var(--space-4)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ fontSize: '3rem', lineHeight: 1 }}>🎉</div>
               <h1 style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 800, color: 'var(--color-text)' }}>
-                Bem-vindo ao Estoque Fácil!
+                Bem-vindo ao StockHome!
               </h1>
               <p style={{ color: 'var(--color-text-soft)', lineHeight: 1.7 }}>
                 Vamos configurar tudo em <strong>3 passos rápidos</strong>. Leva menos de 2 minutos.

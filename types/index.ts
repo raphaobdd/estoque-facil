@@ -4,12 +4,18 @@ export type TipoMovimentacao = 'entrada' | 'saida' | 'perda' | 'ajuste'
 export type TipoAlerta = 'reposicao' | 'validade' | 'parado' | 'perda'
 export type StatusAlerta = 'ativo' | 'ignorado' | 'resolvido'
 export type ClassificacaoGiro = 'alto' | 'normal' | 'baixo' | 'parado'
+export type PlanoStatus = 'trial' | 'ativo' | 'cancelado' | 'expirado'
+export type PlanoKey = 'basic' | 'starter' | 'pro'
 
 export interface Empresa {
   id: string
   nome: string
   segmento: string | null
   plano: string
+  plano_status: PlanoStatus
+  stripe_customer_id: string | null
+  stripe_subscription_id: string | null
+  trial_expira_em: string
   criado_em: string
 }
 

@@ -102,7 +102,7 @@ export default function CadastroPage() {
             <div className="auth-logo-icon">
               <Package size={22} strokeWidth={2.5} />
             </div>
-            <span className="auth-logo-name">Estoque Fácil</span>
+            <span className="auth-logo-name">StockHome</span>
           </div>
 
           {/* Step indicator */}

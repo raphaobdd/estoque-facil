@@ -204,3 +204,16 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================
+-- STRIPE — Campos de assinatura na tabela empresas
+-- Execute este bloco no SQL Editor do Supabase após criar as
+-- tabelas pela primeira vez, ou junto com o schema inicial.
+-- ============================================================
+ALTER TABLE public.empresas
+  ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT,
+  ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT,
+  ADD COLUMN IF NOT EXISTS plano_status TEXT NOT NULL DEFAULT 'trial'
+    CHECK (plano_status IN ('trial', 'ativo', 'cancelado', 'expirado')),
+  ADD COLUMN IF NOT EXISTS trial_expira_em TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '14 days');
+
