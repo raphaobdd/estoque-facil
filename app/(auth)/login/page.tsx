@@ -4,7 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Package, Eye, EyeOff, ArrowRight, BarChart3, Bell, Zap } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, BarChart3, Bell, Zap } from 'lucide-react'
+import { Logo } from '@/components/Logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -41,7 +42,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="auth-logo">
             <div className="auth-logo-icon">
-              <Package size={22} strokeWidth={2.5} />
+              <Logo size={24} />
             </div>
             <span className="auth-logo-name">StockHome</span>
           </div>

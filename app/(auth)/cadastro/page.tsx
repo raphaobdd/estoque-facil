@@ -4,7 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Package, Eye, EyeOff, ArrowRight, Check } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, Check } from 'lucide-react'
+import { Logo } from '@/components/Logo'
 
 const SEGMENTOS = [
   'Mercado / Mercearia',
@@ -100,7 +101,7 @@ export default function CadastroPage() {
         <div className="auth-box fade-in">
           <div className="auth-logo">
             <div className="auth-logo-icon">
-              <Package size={22} strokeWidth={2.5} />
+              <Logo size={24} />
             </div>
             <span className="auth-logo-name">StockHome</span>
           </div>

@@ -8,6 +8,7 @@ import {
   BarChart3, Users, Settings, HelpCircle, LogOut,
   TrendingDown, Calendar, RotateCcw, FileText, ChevronDown
 } from 'lucide-react'
+import { Logo } from '@/components/Logo'
 import { useState } from 'react'
 
 const NAV_ITEMS = [
@@ -50,10 +51,10 @@ export function Sidebar({ nomeEmpresa, nomeUsuario, alertasAtivos = 0 }: Sidebar
       {/* Logo */}
       <div className="sidebar-logo">
         <div className="sidebar-logo-icon">
-          <Package size={18} strokeWidth={2.5} />
+          <Logo size={20} />
         </div>
         <div>
-          <div className="sidebar-logo-text">Estoque Fácil</div>
+          <div className="sidebar-logo-text">StockHome</div>
           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{nomeEmpresa}</div>
         </div>
       </div>
