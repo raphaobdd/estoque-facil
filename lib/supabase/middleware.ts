@@ -38,10 +38,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (user && isAuthRoute) {
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
-  }
+  // /login e /cadastro sempre mostram o próprio formulário, mesmo que exista
+  // uma sessão ativa (ex: sessão antiga/quebrada) — consistente com a raiz "/".
+  // Cada página decide o que fazer após o usuário agir (ex: login bem-sucedido
+  // navega para /dashboard explicitamente).
 
   // Feature Gating: se estiver logado, checa se a assinatura expirou
   if (user && !isAuthRoute && !isCallbackRoute && !isPublicRoute && !isConfiguracoesRoute && !isStripeApiRoute && !isPasswordResetRoute) {
