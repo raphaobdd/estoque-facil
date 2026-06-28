@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+import { SpeedInsights } from '@vercel/speed-insights/next'
+
 export const metadata: Metadata = {
   title: { default: 'StockHome', template: '%s | StockHome' },
   description: 'Controle de estoque simples e inteligente para pequenos negócios. Cadastre produtos, registre movimentações e receba alertas automáticos.',
@@ -28,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         {children}
+        <SpeedInsights />
       </body>
     </html>
   )
