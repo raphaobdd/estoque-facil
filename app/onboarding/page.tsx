@@ -33,12 +33,20 @@ export default function OnboardingPage() {
     setError('')
     setLoading(true)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setLoading(false); return }
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      setError('Sua sessão expirou. Faça login novamente para continuar.')
+      setLoading(false)
+      return
+    }
 
-    const { data: perfil } = await supabase
+    const { data: perfil, error: perfilError } = await supabase
       .from('perfis').select('empresa_id').eq('id', user.id).single()
-    if (!perfil?.empresa_id) { setLoading(false); return }
+    if (perfilError || !perfil?.empresa_id) {
+      setError('Não foi possível encontrar seu perfil. Tente recarregar a página.')
+      setLoading(false)
+      return
+    }
 
     const { data, error: err } = await supabase
       .from('produtos')
@@ -53,7 +61,7 @@ export default function OnboardingPage() {
       .single()
 
     if (err || !data) {
-      setError('Erro ao criar produto. Tente novamente.')
+      setError(err?.message ?? 'Erro ao criar produto. Tente novamente.')
       setLoading(false)
       return
     }

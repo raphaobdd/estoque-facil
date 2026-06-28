@@ -31,8 +31,9 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = url.pathname === '/'
   const isStripeApiRoute = url.pathname.startsWith('/api/stripe')
   const isConfiguracoesRoute = url.pathname.startsWith('/configuracoes')
+  const isPasswordResetRoute = url.pathname.startsWith('/esqueci-senha') || url.pathname.startsWith('/redefinir-senha')
 
-  if (!user && !isAuthRoute && !isCallbackRoute && !isPublicRoute && !isStripeApiRoute) {
+  if (!user && !isAuthRoute && !isCallbackRoute && !isPublicRoute && !isStripeApiRoute && !isPasswordResetRoute) {
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
@@ -43,7 +44,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Feature Gating: se estiver logado, checa se a assinatura expirou
-  if (user && !isAuthRoute && !isCallbackRoute && !isPublicRoute && !isConfiguracoesRoute && !isStripeApiRoute) {
+  if (user && !isAuthRoute && !isCallbackRoute && !isPublicRoute && !isConfiguracoesRoute && !isStripeApiRoute && !isPasswordResetRoute) {
     const { data: perfil } = await supabase
       .from('perfis')
       .select('empresa_id')
@@ -59,7 +60,7 @@ export async function updateSession(request: NextRequest) {
 
       if (empresa) {
         let expirado = empresa.plano_status === 'cancelado' || empresa.plano_status === 'expirado'
-        
+
         // Verifica se trial expirou
         if (empresa.plano_status === 'trial' && empresa.trial_expira_em) {
           const trialFim = new Date(empresa.trial_expira_em).getTime()

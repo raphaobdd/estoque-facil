@@ -94,6 +94,11 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              <div style={{ textAlign: 'right', marginTop: 'var(--space-2)' }}>
+                <Link href="/esqueci-senha" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-primary)', fontWeight: 600 }}>
+                  Esqueci minha senha
+                </Link>
+              </div>
             </div>
 
             <button
