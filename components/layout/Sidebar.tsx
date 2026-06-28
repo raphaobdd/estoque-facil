@@ -54,7 +54,7 @@ export function Sidebar({ nomeEmpresa, nomeUsuario, alertasAtivos = 0 }: Sidebar
         </div>
         <div>
           <div className="sidebar-logo-text">Estoque Fácil</div>
-          <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: 1 }}>{nomeEmpresa}</div>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{nomeEmpresa}</div>
         </div>
       </div>
 
@@ -107,15 +107,15 @@ export function Sidebar({ nomeEmpresa, nomeUsuario, alertasAtivos = 0 }: Sidebar
       {/* Footer */}
       <div className="sidebar-footer">
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-          <div style={{ width: 32, height: 32, borderRadius: 'var(--radius-full)', background: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-primary)', fontWeight: 700, fontSize: 'var(--font-size-sm)', flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 'var(--radius-full)', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: 'var(--font-size-sm)', flexShrink: 0 }}>
             {nomeUsuario.charAt(0).toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nomeUsuario}</div>
-            <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Admin</div>
+            <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nomeUsuario}</div>
+            <div style={{ fontSize: 'var(--font-size-xs)', color: 'rgba(255,255,255,0.5)' }}>Admin</div>
           </div>
         </div>
-        <button className="sidebar-link" style={{ width: '100%', color: 'var(--color-danger)', cursor: 'pointer' }} onClick={handleLogout}>
+        <button className="sidebar-link" style={{ width: '100%', color: '#FCA5A5', cursor: 'pointer' }} onClick={handleLogout}>
           <LogOut className="nav-icon" />
           <span>Sair</span>
         </button>

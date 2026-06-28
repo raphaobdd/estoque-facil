@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getGreeting, formatCurrency, pluralize } from '@/lib/utils'
+import { getGreeting, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import {
   AlertTriangle, Package, TrendingDown, BarChart3,
@@ -24,55 +24,57 @@ export default async function DashboardPage() {
   if (!perfil?.empresa_id) redirect('/onboarding')
   const eid = perfil.empresa_id
 
-  // === Dados do dashboard ===
   const hoje = new Date()
   const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0]
+  const trinta = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  // Produtos para repor
-  const { data: produtos } = await supabase
-    .from('produtos')
-    .select('id, nome, estoque_atual, estoque_minimo, unidade_medida, custo_unitario, categoria:categorias(nome)')
-    .eq('empresa_id', eid)
-    .eq('ativo', true)
+  // === Paralelizar todas as queries ===
+  const [
+    { data: produtos },
+    { data: movRecentes },
+    { data: perdasMes },
+    { data: alertas },
+  ] = await Promise.all([
+    supabase
+      .from('produtos')
+      .select('id, nome, estoque_atual, estoque_minimo, unidade_medida, custo_unitario, categoria:categorias(nome)')
+      .eq('empresa_id', eid)
+      .eq('ativo', true),
+
+    supabase
+      .from('movimentacoes')
+      .select('produto_id')
+      .eq('empresa_id', eid)
+      .in('tipo', ['saida', 'perda'])
+      .gte('data_movimentacao', trinta),
+
+    supabase
+      .from('movimentacoes')
+      .select('quantidade, custo_unitario_momento')
+      .eq('empresa_id', eid)
+      .eq('tipo', 'perda')
+      .gte('data_movimentacao', inicioMes),
+
+    supabase
+      .from('alertas')
+      .select('id, tipo, mensagem, criado_em')
+      .eq('empresa_id', eid)
+      .eq('status', 'ativo')
+      .order('criado_em', { ascending: false })
+      .limit(6),
+  ])
 
   const produtosList = produtos ?? []
   const paraRepor = produtosList.filter(p => p.estoque_atual <= p.estoque_minimo)
 
-  // Produtos parados (sem saída há 30+ dias)
-  const trinta = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  const { data: movRecentes } = await supabase
-    .from('movimentacoes')
-    .select('produto_id')
-    .eq('empresa_id', eid)
-    .in('tipo', ['saida', 'perda'])
-    .gte('data_movimentacao', trinta)
-
   const idsComSaida = new Set((movRecentes ?? []).map((m: { produto_id: string }) => m.produto_id))
   const produtosParados = produtosList.filter(p => !idsComSaida.has(p.id) && p.estoque_atual > 0)
-
-  // Perdas do mês
-  const { data: perdasMes } = await supabase
-    .from('movimentacoes')
-    .select('quantidade, custo_unitario_momento')
-    .eq('empresa_id', eid)
-    .eq('tipo', 'perda')
-    .gte('data_movimentacao', inicioMes)
 
   const totalPerdasQtd = (perdasMes ?? []).reduce((a: number, m: { quantidade: number }) => a + m.quantidade, 0)
   const totalPerdasValor = (perdasMes ?? []).reduce((a: number, m: { quantidade: number; custo_unitario_momento: number | null }) => a + m.quantidade * (m.custo_unitario_momento ?? 0), 0)
 
-  // Estoque total
   const totalItens = produtosList.reduce((a, p) => a + p.estoque_atual, 0)
   const totalValor = produtosList.reduce((a, p) => a + p.estoque_atual * (p.custo_unitario ?? 0), 0)
-
-  // Alertas recentes
-  const { data: alertas } = await supabase
-    .from('alertas')
-    .select('id, tipo, mensagem, criado_em')
-    .eq('empresa_id', eid)
-    .eq('status', 'ativo')
-    .order('criado_em', { ascending: false })
-    .limit(6)
 
   const ALERT_COLORS: Record<string, string> = {
     reposicao: 'var(--color-danger)',
@@ -198,7 +200,6 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Produtos críticos */}
         {paraRepor.length > 0 && (
           <>
             <div className="divider" style={{ margin: 0 }} />
