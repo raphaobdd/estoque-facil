@@ -20,6 +20,7 @@ export default function BarcodeScanner({ onScanSuccess, onScanFailure }: Barcode
     const initScanner = async () => {
       try {
         html5QrCode.current = new Html5Qrcode(scannerId, {
+          verbose: false,
           formatsToSupport: [
             Html5QrcodeSupportedFormats.EAN_13,
             Html5QrcodeSupportedFormats.EAN_8,
