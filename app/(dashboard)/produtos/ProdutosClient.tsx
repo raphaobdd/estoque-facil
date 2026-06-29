@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Plus, Search, Filter, Package, X, ChevronRight, Edit2, Archive } from 'lucide-react'
+import { Plus, Search, Filter, Package, X, ChevronRight, Edit2, Archive, ScanLine } from 'lucide-react'
 import type { Produto, Categoria } from '@/types'
 import { formatCurrency } from '@/lib/utils'
+import BarcodeScanner from '@/components/BarcodeScanner'
 
 const UNIDADES = ['unidade', 'caixa', 'pacote', 'quilo', 'grama', 'litro', 'metro']
 
@@ -45,6 +46,7 @@ export default function ProdutosClient({ produtosIniciais, categorias, empresaId
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState<Produto | null>(null)
   const [form, setForm] = useState<FormData>(FORM_INICIAL)
+  const [scannerAberto, setScannerAberto] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [produtoDetalhe, setProdutoDetalhe] = useState<Produto | null>(null)
@@ -75,6 +77,7 @@ export default function ProdutosClient({ produtosIniciais, categorias, empresaId
       setForm(FORM_INICIAL)
     }
     setError('')
+    setScannerAberto(false)
     setModalAberto(true)
   }
 
@@ -340,7 +343,22 @@ export default function ProdutosClient({ produtosIniciais, categorias, empresaId
                   </div>
                   <div className="form-group">
                     <label className="form-label">Código interno</label>
-                    <input className="form-input" placeholder="SKU, código de barras..." value={form.codigo_interno} onChange={e => updateForm('codigo_interno', e.target.value)} />
+                    <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                      <input className="form-input" style={{ flex: 1 }} placeholder="SKU, código de barras..." value={form.codigo_interno} onChange={e => updateForm('codigo_interno', e.target.value)} />
+                      <button type="button" className="btn btn-secondary btn-icon" onClick={() => setScannerAberto(!scannerAberto)} title="Escanear código de barras">
+                        <ScanLine size={18} />
+                      </button>
+                    </div>
+                    {scannerAberto && (
+                      <div style={{ marginTop: 'var(--space-3)' }}>
+                        <BarcodeScanner 
+                          onScanSuccess={(code) => {
+                            updateForm('codigo_interno', code)
+                            setScannerAberto(false)
+                          }} 
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Fornecedor</label>
